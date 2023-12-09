@@ -1,7 +1,7 @@
 const express = require("express");
 const mongodb = require("mongodb");
 const MongoClient = mongodb.MongoClient;
-const bodyParser = require("body-parser");
+require('dotenv').config()
 
 const cors = require("cors");
 const app = express();
@@ -21,11 +21,18 @@ const port = 3000;
   };
 
   const conn = await getConn();
-  const db = conn.db("store_back");
+  const db = conn.db(process.env.MONGO_DB);
 
   app.get("/goods", cors(), async (req, res) => {
     const collection = db.collection("goods");
     let results = await collection.find({}).limit(50).toArray();
+    res.json(results).status(200);
+    console.log(results)
+  });
+
+  app.get("/goods/:id", cors(), async (req, res) => {
+    const collection = db.collection("goods");
+    let results = await collection.find({ _id: new mongodb.ObjectId(req.params.id) }).limit(50).toArray();
     res.send(results).status(200);
   });
 
